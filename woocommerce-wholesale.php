@@ -9,7 +9,7 @@ Author URI: http://github.com/edohartono
 ?>
 */
 
-if(!defined('ABSPATH')).exit;
+if(!defined('ABSPATH')) exit;
 if (!defined('WS_PLUGIN_DIR_PATH'))
 
 define('WS_PLUGIN_DIR_PATH', plugin_dir_path(__FILE__));
