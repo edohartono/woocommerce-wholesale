@@ -2,55 +2,83 @@
 
 if(!defined('ABSPATH')) exit;
 
-add_action( 'wp_enqueue_scripts', 'ws_enqueue_script' );
+add_action( 'admin_enqueue_scripts', 'ws_enqueue_script' );
 
 function ws_enqueue_script() {
     wp_register_script('wsscript', WS_PLUGIN_DIR_PATH .'/assets/js/script.js', array('jquery'), '', false);
     wp_enqueue_script('wsscript');
+    wp_enqueue_style( 'wsstyle', plugin_dir_url( __FILE__ ) . '/assets/css/style.css' );
 }
 
 add_action( 'woocommerce_product_options_general_product_data', 'wholesale_price_field');
 function wholesale_price_field() {
-	woocommerce_wp_checkbox( array(
-		'id'	=> '_status',
-		'label'	=> __('Set Wholesale', 'woocommerce')
-	));
+
+
+
+
+	global $post;
+	$wholesale = get_post_meta( $post->ID, '_wholesale', true);
+	$status = get_post_meta( $post->ID, '_status', true);
+	echo $status;
+	
+	if ( $status == 'enable' ){	
+		woocommerce_wp_checkbox( array(
+			'id'	=> '_status',
+			'label'	=> __('Set Wholesale', 'woocommerce'),
+			'cbvalue' => 'enable'
+		));
+		}
+
+	else {
+		woocommerce_wp_checkbox( array(
+			'id'	=> '_status',
+			'label'	=> __('Set Wholesale', 'woocommerce')
+		));
+	}
 
 	?>
-<script type="text/javascript">
+	<script type="text/javascript">
 
-$(document).ready(function(){
-
-    $(".add-row").click(function(){
-        var markup = '<tr><td><input type="number" name="_wholesale[qty][]" value=""></td><td><input type="text" name="_wholesale[price][]" value=""></td><td><input type="button" class="delete-row" value="X"></td></tr>';
-
-        $("#inputWS tbody").append(markup);
-    });
-
-    $("#inputWS").on('click', '.delete-row', function(){
-          $(this).parent().parent().remove();
-       });
-
-    });
+	$(document).ready(function(){
+		$("#_status").change(function(){
+			if(this.checked)
+				$('#checkuncheck').fadeIn('slow');
+			else
+				$('#checkuncheck').fadeOut('slow');
 
 
+		});
 
-</script>
-	<table id="inputWS">
-		<input type="button" class="add-row" value="Add Row">
+	    $(".add-rowWS").click(function(){
+	        var markup = '<tr><td><input type="number" name="_wholesale[qty][]" value=""></td><td><input type="text" name="_wholesale[price][]" value=""></td><td><input type="button" class="delete-row" value="X"></td></tr>';
+
+	        $("#inputWS tbody").append(markup);
+	    });
+
+	    $("#inputWS").on('click', '.delete-row', function(){
+	          $(this).parent().parent().remove();
+	       });
+
+	    });
+
+
+
+	</script>
+
+	<div style="display: none" id="checkuncheck">
+	
+	<table id="inputWS" class="input-ws" cellspacing="0">
 		<thead>
 			<tr>
 				<th>Qty</th>
 				<th>Price</th>
-				<th></th>
+				<th><input type="button" class="add-rowWS" value="+"/></th>
 			</tr>
 		</thead>
 
 		<?php
-		global $post;
-		$wholesale = get_post_meta( $post->ID, '_wholesale', true);
 
-		if (!empty($wholesale) ) {
+		if ( !empty($wholesale) && $wholesale != 'null' ) {
 			$dec_wholesale = json_decode($wholesale, true);
 			$count_ws = count($dec_wholesale['qty']);
 
@@ -64,7 +92,7 @@ $(document).ready(function(){
 			}
 		}
 
-		elseif ( empty($wholesale) || !isset($wholesale)) {
+		elseif ( empty($wholesale) || !isset($wholesale) || $wholesale == 'null') {
 			echo '
 			<tr>
 			<td><input type="number" name="_wholesale[qty][]" value=""></td>
@@ -79,13 +107,14 @@ $(document).ready(function(){
 		
 		?>
 	</table>
+</div>
 	<?php
 }
 
 add_action( 'woocommerce_process_product_meta', 'ws_save_field' );
 function ws_save_field( $post_id ) {
-	$status = $_POST['_status'];
 	$wholesale = $_POST['_wholesale'];
+	$status = $_POST['_status'];
 	$count_wholesale = count($wholesale['qty']);
 	$wholesale_save = json_encode($wholesale);
 

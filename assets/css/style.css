@@ -1,0 +1,52 @@
+.input-ws {
+	width: 95%;
+	margin: 20px auto;
+	border: 1px solid #707070;
+	border-collapse: collapse;
+}
+
+.input-ws tr th {
+	border-bottom: 1px solid gray;
+}
+
+.input-ws tr td:nth-child(2),
+.input-ws tr th:nth-child(2)  {
+	border-left: 1px solid #545454;;
+	border-right: 1px solid #545454;;
+}
+
+.input-ws tr td input[type="text"],
+.input-ws tr td input[type="number"]
+ {
+	width: 90%;
+	margin: 4px 5%;
+	box-shadow: 0 0 4px 0 #C0C0C0;
+}
+
+.add-rowWS, .delete-row {
+	font-weight: bold;
+	border: none;
+	cursor: pointer;
+	text-align: center;
+}
+
+.add-rowWS:hover, .delete-row:hover {
+	opacity: .8;
+}
+
+.add-rowWS {
+	background-color: #0DBDFB;
+	line-height: 20px;
+	font-size: 24px;
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+}
+
+.delete-row {
+	color: red;
+	font-size: 16px;
+	padding-left: 15px;
+	display: block;
+}
+
