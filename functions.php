@@ -29,6 +29,7 @@ function wholesale_price_field() {
 		<?php
 		global $post;
 		$wholesale = get_post_meta( $post->ID, '_wholesale', true);
+		echo $wholesale;
 
 		if (!empty($wholesale) ) {
 			$dec_wholesale = json_decode($wholesale, true);
@@ -79,21 +80,18 @@ function set_wholesale_pricing( $wc_cart ) {
 	foreach ( $wc_cart->get_cart() as $key => $cart_item) {
 
 		$wholesale = get_post_meta( $cart_item['data']->get_id(), '_wholesale', true);
-		$dec_wholesale = json_decode($wholesale);
-		$count_wholesale = count($wholesale['qty']);
+		$dec_wholesale = json_decode($wholesale, true);
+		$count_wholesale = count($dec_wholesale['qty']);
 
 		$price = $cart_item['data']->get_price();
 		$qty = $cart_item['quantity'];
-		//Dinamic Pseudo code
-
 		
-		for ( $i = 0; $i < $count_wholesale, $i++ ) {
-			$ws_qty = $dec_wholesale['qty'][$i];
-			if ($qty >= $ws_qty && $qty < $ws_qty+1) {
-				$setprice = $dec_wholesale['price'][$i];
-				$cart_item['data']->set_price($setprice);
-			}
+		for ( $i = 0; $i < $count_wholesale; $i++ ) {
+
+	      if ($qty >= $dec_wholesale['qty'][$i]) {
+	        $setprice = $dec_wholesale['price'][$i];
+	        $cart_item['data']->set_price($setprice);
+	      }				    
 		}
 	}
-
 }
