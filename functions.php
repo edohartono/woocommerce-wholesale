@@ -17,7 +17,27 @@ function wholesale_price_field() {
 	));
 
 	?>
+<script type="text/javascript">
+
+$(document).ready(function(){
+
+    $(".add-row").click(function(){
+        var markup = '<tr><td><input type="number" name="_wholesale[qty][]" value=""></td><td><input type="text" name="_wholesale[price][]" value=""></td><td><input type="button" class="delete-row" value="X"></td></tr>';
+
+        $("#inputWS tbody").append(markup);
+    });
+
+    $("#inputWS").on('click', '.delete-row', function(){
+          $(this).parent().parent().remove();
+       });
+
+    });
+
+
+
+</script>
 	<table id="inputWS">
+		<input type="button" class="add-row" value="Add Row">
 		<thead>
 			<tr>
 				<th>Qty</th>
@@ -29,7 +49,6 @@ function wholesale_price_field() {
 		<?php
 		global $post;
 		$wholesale = get_post_meta( $post->ID, '_wholesale', true);
-		echo $wholesale;
 
 		if (!empty($wholesale) ) {
 			$dec_wholesale = json_decode($wholesale, true);
@@ -40,6 +59,7 @@ function wholesale_price_field() {
 				<tr>
 				<td><input type="number" name="_wholesale[qty][]" value="'.$dec_wholesale['qty'][$i].'"></td>
 				<td><input type="text" name="_wholesale[price][]" value="'.$dec_wholesale['price'][$i].'"></td>
+				<td><input type="button" class="delete-row" value="X"></td>
 				</tr>';
 			}
 		}
