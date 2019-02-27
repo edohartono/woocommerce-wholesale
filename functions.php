@@ -16,6 +16,7 @@ function wholesale_price_field() {
 	global $post;
 	$wholesale = get_post_meta( $post->ID, '_wholesale', true);
 	$status = get_post_meta( $post->ID, '_wsstatus', true);
+	echo $wholesale;
 
 	if ($status == 'enable') {
 		woocommerce_wp_checkbox( array(
