@@ -159,11 +159,10 @@ function wholesale_single_loop() {
 
         global $post;
         $status = get_post_meta($post->ID, '_wsstatus', true);
-        $wholesale = json_decode(get_post_meta($post->ID, '_wholesale', true), true);
-        $wholesale_count = count($wholesale['qty']);
-
-        if ( isset($status) && $status == 'enable' ) {
-
+        
+		if ( is_single() && isset($status) && $status == 'enable' ) {
+        	$wholesale = json_decode(get_post_meta($post->ID, '_wholesale', true), true);
+        	$wholesale_count = count($wholesale['qty']);
         	echo "<table class='wholesale-loop'><tr><th>Qty</th><th>Price</th></tr>";
 
         		for ( $i = 0; $i < $wholesale_count; $i++ ) {
