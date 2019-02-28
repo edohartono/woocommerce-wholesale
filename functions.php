@@ -7,6 +7,10 @@ add_action( 'admin_enqueue_scripts', 'ws_enqueue_script' );
 function ws_enqueue_script() {
     wp_register_script('wsscript', WS_PLUGIN_DIR_PATH .'/assets/js/script.js', array('jquery'), '', false);
     wp_enqueue_script('wsscript');
+}
+
+add_action ( 'wp_enqueue_scripts', 'ws_enqueue_style' );
+function ws_enqueue_style(){
     wp_enqueue_style( 'wsstyle', plugin_dir_url( __FILE__ ) . '/assets/css/style.css' );
 }
 
@@ -146,4 +150,35 @@ function set_wholesale_pricing( $wc_cart ) {
 			}
 		}
 	}
+}
+
+
+add_action( 'woocommerce_before_add_to_cart_button', 'wholesale_single_loop' );
+
+function wholesale_single_loop() {
+
+        global $post;
+        $status = get_post_meta($post->ID, '_wsstatus', true);
+        $wholesale = json_decode(get_post_meta($post->ID, '_wholesale', true), true);
+        $wholesale_count = count($wholesale['qty']);
+
+        if ( isset($status) && $status == 'enable' ) {
+
+        	echo "<table class='wholesale-loop'><tr><th>Qty</th><th>Price</th></tr>";
+
+        		for ( $i = 0; $i < $wholesale_count; $i++ ) {
+					if (!empty($wholesale['qty'][$i+1])){
+						echo "<tr><td>".$wholesale['qty'][$i]." - ".($wholesale['qty'][$i+1]-1)."</td>";
+						echo "<td>".wc_price($wholesale['price'][$i])."</td></tr>";
+					}
+
+					else {
+						echo "<tr><td> >= ".$wholesale['qty'][$i]."</td>";
+						echo "<td>".wc_price($wholesale['price'][$i])."</td></tr>";
+					}
+				}
+
+        	echo "</table>";
+
+        }
 }
