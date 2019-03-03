@@ -32,6 +32,9 @@ Frequently asked questions will updated later
 = 1.0.0 =
 * Release
 
+= 1.1.0 =
+* Fix bug WooCommerce v3.5.5
+
 == Upgrade notice ==
 
 There is a new version of WooCommerce Wholesale available.

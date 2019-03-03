@@ -3,7 +3,7 @@
 Plugin Name: WooCommerce Wholesale
 Plugin URI: http://github.com/edohartono/woocommerce-wholesale
 description: Wordpress & WooCommerce plugin that help you to make wholesale pricing easily to your product pricing of your product.
-Version: 1.0.0
+Version: 1.1.0
 Author: Edo Hartono
 Author URI: http://github.com/edohartono
 ?>

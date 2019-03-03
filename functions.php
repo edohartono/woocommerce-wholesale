@@ -9,9 +9,10 @@ function ws_enqueue_script() {
     wp_enqueue_script('wsscript');
 }
 
-add_action ( 'wp_enqueue_scripts', 'ws_enqueue_style' );
+add_action ( 'admin_print_styles', 'ws_enqueue_style' );
 function ws_enqueue_style(){
-    wp_enqueue_style( 'wsstyle', plugin_dir_url( __FILE__ ) . '/assets/css/style.css' );
+    //wp_enqueue_style( 'wsstyle', plugins_url( __FILE__ ) . '/assets/css/style.css' );
+    wp_enqueue_style( 'wsstyle', plugins_url('/assets/css/style.css', __FILE__ ) );
 }
 
 add_action( 'woocommerce_product_options_general_product_data', 'wholesale_price_field');
@@ -20,18 +21,17 @@ function wholesale_price_field() {
 	global $post;
 	$wholesale = get_post_meta( $post->ID, '_wholesale', true);
 	$status = get_post_meta( $post->ID, '_wsstatus', true);
-	echo $wholesale;
 
-	if ($status == 'enable') {
+	if ($status == 'yes') {
 		woocommerce_wp_checkbox( array(
 			'id'	=> '_wsstatus',
 			'label'	=> __('Set Wholesale', 'woocommerce'),
-			'cbvalue' => 'enable'
+			'cbvalue' => 'yes'
 		));
 		echo '<div style="display: block" id="checkuncheck">';
 	}
 
-	elseif ($status == 'disable' || !isset($status) || empty($status) ) {
+	elseif ($status == 'no' || !isset($status) || empty($status) ) {
 		woocommerce_wp_checkbox( array(
 			'id'	=> '_wsstatus',
 			'label'	=> __('Set Wholesale', 'woocommerce')
@@ -70,49 +70,47 @@ function wholesale_price_field() {
 	</script>
 
 	
-	
-	<table id="inputWS" class="input-ws" cellspacing="0">
-		<thead>
-			<tr>
-				<th>Qty</th>
-				<th>Price</th>
-				<th><input type="button" class="add-rowWS" value="+"/></th>
-			</tr>
-		</thead>
+	<?php	
+	$html = '<table id="inputWS" class="input-ws" cellspacing="0">';
+	$html .= '<thead>';
+	$html .= '<tr>';
+	$html .= '<th>Qty</th>';
+	$html .= '<th>Price</th>';
+	$html .= '<th><input type="button" class="add-rowWS" value="+"/></th>';
+	$html .= '</tr>';
+	$html .= '</thead>';
 
-		<?php
+		
 
 		if ( !empty($wholesale) && $wholesale != 'null' ) {
 			$dec_wholesale = json_decode($wholesale, true);
 			$count_ws = count($dec_wholesale['qty']);
 
 			for ( $i = 0; $i < $count_ws; $i++ ) {
-				echo '
-				<tr>
-				<td><input type="number" name="_wholesale[qty][]" value="'.$dec_wholesale['qty'][$i].'"></td>
-				<td><input type="text" name="_wholesale[price][]" value="'.$dec_wholesale['price'][$i].'"></td>
-				<td><input type="button" class="delete-row" value="X"></td>
-				</tr>';
+				$html .= '<tr>';
+				$html .= '<td><input type="number" name="_wholesale[qty][]" value="'.$dec_wholesale['qty'][$i].'"></td>';
+				$html .= '<td><input type="text" name="_wholesale[price][]" value="'.$dec_wholesale['price'][$i].'"></td>';
+				$html .= '<td><input type="button" class="delete-row" value="X"></td>';
+				$html .= '</tr>';
 			}
 		}
 
 		elseif ( empty($wholesale) || !isset($wholesale) || $wholesale == 'null') {
-			echo '
-			<tr>
-			<td><input type="number" name="_wholesale[qty][]" value=""></td>
-			<td><input type="text" name="_wholesale[price][]" value=""></td>
-			</tr>
-			';
+
+				$html .= '<tr>';
+				$html .= '<td><input type="number" name="_wholesale[qty][]" value=""></td>';
+				$html .= '<td><input type="text" name="_wholesale[price][]" value=""></td>';
+				$html .= '</tr>';
 		}
 
 		 else {
 			echo "wholesale error";
 		}
 		
-		?>
-	</table>
-	</div>
-	<?php
+	$html .= '</table>';
+	$html .= '</div>';
+
+	echo $html;
 }
 
 add_action( 'woocommerce_process_product_meta', 'ws_save_field' );
@@ -129,13 +127,15 @@ function ws_save_field( $post_id ) {
 add_action( 'woocommerce_before_calculate_totals', 'set_wholesale_pricing');
 
 function set_wholesale_pricing( $wc_cart ) {
+	if ( is_admin() && !defined( 'DOING_AJAX' ) )
+		return;
 
 	foreach ( $wc_cart->get_cart() as $key => $cart_item) {
 		$status = get_post_meta( $cart_item['data']->get_id(), '_wsstatus', true);
 		$wholesale = get_post_meta( $cart_item['data']->get_id(), '_wholesale', true);
 		$dec_wholesale = json_decode($wholesale, true);
 
-		if ($status == 'enable' && !empty($dec_wholesale)) {
+		if ($status == 'yes' && !empty($dec_wholesale)) {
 
 			$count_wholesale = count($dec_wholesale['qty']);
 			$price = $cart_item['data']->get_price();
@@ -146,11 +146,40 @@ function set_wholesale_pricing( $wc_cart ) {
 		      if ($qty >= $dec_wholesale['qty'][$i]) {
 		      	$setprice = $dec_wholesale['price'][$i];
 		        $cart_item['data']->set_price($setprice);
+		        
 		      }
 			}
 		}
 	}
 }
+
+add_filter( 'woocommerce_cart_item_price', 'woocommerce_cart_item_price_filter', 10, 3 );
+function woocommerce_cart_item_price_filter( $price, $cart_item, $cart_item_key ) {
+
+	$status = get_post_meta( $cart_item['data']->get_id(), '_wsstatus', true);
+	$wholesale = get_post_meta( $cart_item['data']->get_id(), '_wholesale', true);
+	$price = $cart_item['data']->get_price();
+	$dec_wholesale = json_decode($wholesale, true);
+
+	if ( $status == 'yes' && !empty($dec_wholesale) ) {
+		$qty = $cart_item['quantity'];
+		$count_wholesale = count($dec_wholesale['qty']);
+
+		for ( $i=0; $i < $count_wholesale; $i++ ) {
+			if ( $qty >= $dec_wholesale['qty'][$i] ) {
+				$wholesale_price = $dec_wholesale['price'][$i];
+			}
+		}
+	} else {
+		$wholesale_price = $price;
+	}
+
+
+    return $wholesale_price;
+}
+
+
+
 
 
 add_action( 'woocommerce_before_add_to_cart_button', 'wholesale_single_loop' );
@@ -160,24 +189,47 @@ function wholesale_single_loop() {
         global $post;
         $status = get_post_meta($post->ID, '_wsstatus', true);
         
-		if ( is_single() && isset($status) && $status == 'enable' ) {
+		if ( is_single() && isset($status) && $status == 'yes' ) {
         	$wholesale = json_decode(get_post_meta($post->ID, '_wholesale', true), true);
         	$wholesale_count = count($wholesale['qty']);
-        	echo "<table class='wholesale-loop'><tr><th>Qty</th><th>Price</th></tr>";
+        	?>
+
+        	<style>
+				.wholesale-loop {
+					border-radius: 5px;
+					width: 90%;
+					margin: 7vh auto;
+					box-shadow: 0 0 9px 0 #DCDCDC;
+
+				}
+
+				.wholesale-loop tr th {
+					text-align: center;
+					background-color: #D0D0D0;
+				}
+
+				.wholesale-loop tr td {
+					text-align: center;
+				}
+			</style>
+        	<?php
+
+        	$html = "<table class='wholesale-loop'><tr><th>Qty</th><th>Price</th></tr>";
 
         		for ( $i = 0; $i < $wholesale_count; $i++ ) {
 					if (!empty($wholesale['qty'][$i+1])){
-						echo "<tr><td>".$wholesale['qty'][$i]." - ".($wholesale['qty'][$i+1]-1)."</td>";
-						echo "<td>".wc_price($wholesale['price'][$i])."</td></tr>";
+						$html .= "<tr><td>".$wholesale['qty'][$i]." - ".($wholesale['qty'][$i+1]-1)."</td>";
+						$html .= "<td>".wc_price($wholesale['price'][$i])."</td></tr>";
 					}
 
 					else {
-						echo "<tr><td> >= ".$wholesale['qty'][$i]."</td>";
-						echo "<td>".wc_price($wholesale['price'][$i])."</td></tr>";
+						$html .= "<tr><td> >= ".$wholesale['qty'][$i]."</td>";
+						$html .= "<td>".wc_price($wholesale['price'][$i])."</td></tr>";
 					}
 				}
 
-        	echo "</table>";
+        	$html.= "</table>";
 
         }
+        echo $html;
 }

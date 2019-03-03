@@ -50,19 +50,4 @@
 	display: block;
 }
 
-.wholesale-loop {
-	border-radius: 5px;
-	width: 90%;
-	margin: 7vh auto;
-	box-shadow: 0 0 9px 0 #9E9E9E;
 
-}
-
-.wholesale-loop tr th {
-	text-align: center;
-	background-color: #D0D0D0;
-}
-
-.wholesale-loop tr td {
-	text-align: center;
-}
