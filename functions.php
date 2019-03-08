@@ -2,17 +2,36 @@
 
 if(!defined('ABSPATH')) exit;
 
-add_action( 'admin_enqueue_scripts', 'ws_enqueue_script' );
 
+
+if ( is_admin() ) {
+add_action( 'admin_enqueue_scripts', 'ws_enqueue_script' );
 function ws_enqueue_script() {
     wp_register_script('wsscript', WS_PLUGIN_DIR_PATH .'/assets/js/script.js', array('jquery'), '', false);
     wp_enqueue_script('wsscript');
 }
 
+
 add_action ( 'admin_print_styles', 'ws_enqueue_style' );
 function ws_enqueue_style(){
-    //wp_enqueue_style( 'wsstyle', plugins_url( __FILE__ ) . '/assets/css/style.css' );
     wp_enqueue_style( 'wsstyle', plugins_url('/assets/css/style.css', __FILE__ ) );
+}
+}
+
+if ( !function_exists('wcws_admin_submenu' ) ) {
+
+	add_action( 'admin_menu', 'wcws_admin_submenu' );
+
+	function wcws_admin_submenu() {
+		add_submenu_page( 'woocommerce', 'Wholesale', 'Wholesale', 'manage_options', 'wholesale', 'wcws_admin_submenu_callback');
+	}
+}
+
+if ( !function_exists( 'wcws_admin_submenu_callback' ) ) {
+	function wcws_admin_submenu_callback() {
+		$html = '<h2>WooCommerce Wholesale</h2>';
+		echo $html;
+	}
 }
 
 add_action( 'woocommerce_product_options_general_product_data', 'wholesale_price_field');
