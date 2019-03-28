@@ -66,7 +66,7 @@ function vedows_wholesale_price_field() {
 	<script type="text/javascript">
 
 		$(document).ready(function(){
-			$("#_wsstatus").change(function(){
+			$("#_vedows_status").change(function(){
 				if(this.checked)
 					$('#checkuncheck').fadeIn('slow');
 				else
