@@ -3,7 +3,7 @@ Contributors: edoha
 Tags: woocommerce wholesale, woocommerce plugin, wholesale price, wholesale pricing, woocommerce wholesale plugin, wholesale
 Requires at least: 3.4
 Donate link: http://www.github.com/edohartono
-Tested up to: 5.1
+Tested up to: 5.1.1
 Requires PHP: 5.2.4
 Stable tag: 1.6.5
 Donate link:
@@ -31,9 +31,6 @@ Frequently asked questions will updated later
 == Changelog ==
 = 1.0.0 =
 * Release
-
-= 1.1.0 =
-* Fix bug WooCommerce v3.5.5
 
 == Upgrade notice ==
 
