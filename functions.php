@@ -5,45 +5,45 @@ if(!defined('ABSPATH')) exit;
 
 
 if ( is_admin() ) {
-add_action( 'admin_enqueue_scripts', 'ws_enqueue_script' );
-function ws_enqueue_script() {
-    wp_register_script('wsscript', WS_PLUGIN_DIR_PATH .'/assets/js/script.js', array('jquery'), '', false);
-    wp_enqueue_script('wsscript');
+add_action( 'admin_enqueue_scripts', 'vedows_enqueue_script' );
+function vedows_enqueue_script() {
+    wp_register_script('vedows-script', WS_PLUGIN_DIR_PATH .'/assets/js/script.js', array('jquery'), '', false);
+    wp_enqueue_script('vedows-script');
 }
 
 
-add_action ( 'admin_print_styles', 'ws_enqueue_style' );
-function ws_enqueue_style(){
-    wp_enqueue_style( 'wsstyle', plugins_url('/assets/css/style.css', __FILE__ ) );
+add_action ( 'admin_print_styles', 'vedows_enqueue_style' );
+function vedows_enqueue_style(){
+    wp_enqueue_style( 'vedows_style', plugins_url('/assets/css/style.css', __FILE__ ) );
 }
 }
 
-if ( !function_exists('wcws_admin_submenu' ) ) {
+if ( !function_exists('vedows_admin_submenu' ) ) {
 
-	add_action( 'admin_menu', 'wcws_admin_submenu' );
+	add_action( 'admin_menu', 'vedows_admin_submenu' );
 
-	function wcws_admin_submenu() {
-		add_submenu_page( 'woocommerce', 'Wholesale', 'Wholesale', 'manage_options', 'wholesale', 'wcws_admin_submenu_callback');
+	function vedows_admin_submenu() {
+		add_submenu_page( 'woocommerce', 'Wholesale', 'Wholesale', 'manage_options', 'vedows-wholesale', 'vedows_admin_submenu_callback');
 	}
 }
 
-if ( !function_exists( 'wcws_admin_submenu_callback' ) ) {
-	function wcws_admin_submenu_callback() {
+if ( !function_exists( 'vedows_admin_submenu_callback' ) ) {
+	function vedows_admin_submenu_callback() {
 		$html = '<h2>WooCommerce Wholesale</h2>';
 		echo $html;
 	}
 }
 
-add_action( 'woocommerce_product_options_general_product_data', 'wholesale_price_field');
-function wholesale_price_field() {
+add_action( 'woocommerce_product_options_general_product_data', 'vedows_wholesale_price_field');
+function vedows_wholesale_price_field() {
 	
 	global $post;
-	$wholesale = get_post_meta( $post->ID, '_wholesale', true);
-	$status = get_post_meta( $post->ID, '_wsstatus', true);
+	$wholesale = get_post_meta( $post->ID, '_vedows_wholesale', true);
+	$status = get_post_meta( $post->ID, '_vedows_status', true);
 
 	if ($status == 'yes') {
 		woocommerce_wp_checkbox( array(
-			'id'	=> '_wsstatus',
+			'id'	=> '_vedows_status',
 			'label'	=> __('Set Wholesale', 'woocommerce'),
 			'cbvalue' => 'yes'
 		));
@@ -52,7 +52,7 @@ function wholesale_price_field() {
 
 	elseif ($status == 'no' || !isset($status) || empty($status) ) {
 		woocommerce_wp_checkbox( array(
-			'id'	=> '_wsstatus',
+			'id'	=> '_vedows_status',
 			'label'	=> __('Set Wholesale', 'woocommerce')
 		));
 		echo '<div style="display: none" id="checkuncheck">';
@@ -132,26 +132,26 @@ function wholesale_price_field() {
 	echo $html;
 }
 
-add_action( 'woocommerce_process_product_meta', 'ws_save_field' );
-function ws_save_field( $post_id ) {
-	$wholesale = $_POST['_wholesale'];
-	$status = $_POST['_wsstatus'];
+add_action( 'woocommerce_process_product_meta', 'vedows_save_field' );
+function vedows_save_field( $post_id ) {
+	$wholesale = $_POST['_vedows_wholesale'];
+	$status = $_POST['_vedows_status'];
 	$count_wholesale = count($wholesale['qty']);
 	$wholesale_save = json_encode($wholesale);
 
-	update_post_meta($post_id, '_wholesale', $wholesale_save);
-	update_post_meta($post_id, '_wsstatus', $status);
+	update_post_meta($post_id, '_vedows_wholesale', $wholesale_save);
+	update_post_meta($post_id, '_vedows_status', $status);
 }
 
-add_action( 'woocommerce_before_calculate_totals', 'set_wholesale_pricing');
+add_action( 'woocommerce_before_calculate_totals', 'vedows_set_wholesale_pricing');
 
-function set_wholesale_pricing( $wc_cart ) {
+function vedows_set_wholesale_pricing( $wc_cart ) {
 	if ( is_admin() && !defined( 'DOING_AJAX' ) )
 		return;
 
 	foreach ( $wc_cart->get_cart() as $key => $cart_item) {
-		$status = get_post_meta( $cart_item['data']->get_id(), '_wsstatus', true);
-		$wholesale = get_post_meta( $cart_item['data']->get_id(), '_wholesale', true);
+		$status = get_post_meta( $cart_item['data']->get_id(), '_vedows_status', true);
+		$wholesale = get_post_meta( $cart_item['data']->get_id(), '_vedows_wholesale', true);
 		$dec_wholesale = json_decode($wholesale, true);
 
 		if ($status == 'yes' && !empty($dec_wholesale)) {
@@ -172,11 +172,11 @@ function set_wholesale_pricing( $wc_cart ) {
 	}
 }
 
-add_filter( 'woocommerce_cart_item_price', 'woocommerce_cart_item_price_filter', 10, 3 );
-function woocommerce_cart_item_price_filter( $price, $cart_item, $cart_item_key ) {
+add_filter( 'woocommerce_cart_item_price', 'vedows_woocommerce_cart_item_price_filter', 10, 3 );
+function vedows_woocommerce_cart_item_price_filter( $price, $cart_item, $cart_item_key ) {
 
-	$status = get_post_meta( $cart_item['data']->get_id(), '_wsstatus', true);
-	$wholesale = get_post_meta( $cart_item['data']->get_id(), '_wholesale', true);
+	$status = get_post_meta( $cart_item['data']->get_id(), '_vedows_status', true);
+	$wholesale = get_post_meta( $cart_item['data']->get_id(), '_vedows_wholesale', true);
 	$price = $cart_item['data']->get_price();
 	$dec_wholesale = json_decode($wholesale, true);
 
@@ -201,15 +201,15 @@ function woocommerce_cart_item_price_filter( $price, $cart_item, $cart_item_key 
 
 
 
-add_action( 'woocommerce_before_add_to_cart_button', 'wholesale_single_loop' );
+add_action( 'woocommerce_before_add_to_cart_button', 'vedows_wholesale_single_loop' );
 
-function wholesale_single_loop() {
+function vedows_wholesale_single_loop() {
 
         global $post;
-        $status = get_post_meta($post->ID, '_wsstatus', true);
+        $status = get_post_meta($post->ID, '_vedows_status', true);
         
 		if ( is_single() && isset($status) && $status == 'yes' ) {
-        	$wholesale = json_decode(get_post_meta($post->ID, '_wholesale', true), true);
+        	$wholesale = json_decode(get_post_meta($post->ID, '_vedows_wholesale', true), true);
         	$wholesale_count = count($wholesale['qty']);
         	?>
 
