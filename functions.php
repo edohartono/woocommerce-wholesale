@@ -76,7 +76,7 @@ function vedows_wholesale_price_field() {
 			});
 
 		    $(".add-rowWS").click(function(){
-		        var markup = '<tr><td><input type="number" name="_wholesale[qty][]" value=""></td><td><input type="text" name="_wholesale[price][]" value=""></td><td><input type="button" class="delete-row" value="X"></td></tr>';
+		        var markup = '<tr><td><input type="number" name="_vedows_wholesale[qty][]" value=""></td><td><input type="text" name="_vedows_wholesale[price][]" value=""></td><td><input type="button" class="delete-row" value="X"></td></tr>';
 
 		        $("#inputWS tbody").append(markup);
 		    });
@@ -107,8 +107,8 @@ function vedows_wholesale_price_field() {
 
 			for ( $i = 0; $i < $count_ws; $i++ ) {
 				$html .= '<tr>';
-				$html .= '<td><input type="number" name="_wholesale[qty][]" value="'.$dec_wholesale['qty'][$i].'"></td>';
-				$html .= '<td><input type="text" name="_wholesale[price][]" value="'.$dec_wholesale['price'][$i].'"></td>';
+				$html .= '<td><input type="number" name="_vedows_wholesale[qty][]" value="'.$dec_wholesale['qty'][$i].'"></td>';
+				$html .= '<td><input type="text" name="_vedows_wholesale[price][]" value="'.$dec_wholesale['price'][$i].'"></td>';
 				$html .= '<td><input type="button" class="delete-row" value="X"></td>';
 				$html .= '</tr>';
 			}
