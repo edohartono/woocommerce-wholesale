@@ -3,38 +3,6 @@
 if(!defined('ABSPATH')) exit;
 
 
-
-if ( is_admin() ) {
-add_action( 'admin_enqueue_scripts', 'vedows_enqueue_script' );
-function vedows_enqueue_script() {
-    wp_register_script('vedows-script', WS_PLUGIN_DIR_PATH .'/assets/js/script.js', array('jquery'), '', false);
-    wp_enqueue_script('vedows-script');
-}
-
-
-add_action ( 'admin_print_styles', 'vedows_enqueue_style' );
-function vedows_enqueue_style(){
-    wp_enqueue_style( 'vedows_style', plugins_url('/assets/css/style.css', __FILE__ ) );
-}
-}
-
-if ( !function_exists('vedows_admin_submenu' ) ) {
-
-	add_action( 'admin_menu', 'vedows_admin_submenu' );
-
-	function vedows_admin_submenu() {
-		add_submenu_page( 'woocommerce', 'Wholesale', 'Wholesale', 'manage_options', 'vedows-wholesale', 'vedows_admin_submenu_callback');
-	}
-}
-
-if ( !function_exists( 'vedows_admin_submenu_callback' ) ) {
-	function vedows_admin_submenu_callback() {
-		$html = '<h2>WooCommerce Wholesale</h2>';
-		echo $html;
-	}
-}
-
-add_action( 'woocommerce_product_options_general_product_data', 'vedows_wholesale_price_field');
 function vedows_wholesale_price_field() {
 	
 	global $post;
@@ -132,7 +100,6 @@ function vedows_wholesale_price_field() {
 	echo $html;
 }
 
-add_action( 'woocommerce_process_product_meta', 'vedows_save_field' );
 function vedows_save_field( $post_id ) {
 	$wholesale = $_POST['_vedows_wholesale'];
 	$status = $_POST['_vedows_status'];
@@ -142,8 +109,6 @@ function vedows_save_field( $post_id ) {
 	update_post_meta($post_id, '_vedows_wholesale', $wholesale_save);
 	update_post_meta($post_id, '_vedows_status', $status);
 }
-
-add_action( 'woocommerce_before_calculate_totals', 'vedows_set_wholesale_pricing');
 
 function vedows_set_wholesale_pricing( $wc_cart ) {
 	if ( is_admin() && !defined( 'DOING_AJAX' ) )
@@ -172,7 +137,7 @@ function vedows_set_wholesale_pricing( $wc_cart ) {
 	}
 }
 
-add_filter( 'woocommerce_cart_item_price', 'vedows_woocommerce_cart_item_price_filter', 10, 3 );
+
 function vedows_woocommerce_cart_item_price_filter( $price, $cart_item, $cart_item_key ) {
 
 	$status = get_post_meta( $cart_item['data']->get_id(), '_vedows_status', true);
@@ -195,60 +160,4 @@ function vedows_woocommerce_cart_item_price_filter( $price, $cart_item, $cart_it
 
 
     return $wholesale_price;
-}
-
-
-
-
-
-add_action( 'woocommerce_before_add_to_cart_button', 'vedows_wholesale_single_loop' );
-
-function vedows_wholesale_single_loop() {
-
-        global $post;
-        $status = get_post_meta($post->ID, '_vedows_status', true);
-        
-		if ( is_single() && isset($status) && $status == 'yes' ) {
-        	$wholesale = json_decode(get_post_meta($post->ID, '_vedows_wholesale', true), true);
-        	$wholesale_count = count($wholesale['qty']);
-        	?>
-
-        	<style>
-				.wholesale-loop {
-					border-radius: 5px;
-					width: 90%;
-					margin: 7vh auto;
-					box-shadow: 0 0 9px 0 #DCDCDC;
-
-				}
-
-				.wholesale-loop tr th {
-					text-align: center;
-					background-color: #D0D0D0;
-				}
-
-				.wholesale-loop tr td {
-					text-align: center;
-				}
-			</style>
-        	<?php
-
-        	$html = "<table class='wholesale-loop'><tr><th>Qty</th><th>Price</th></tr>";
-
-        		for ( $i = 0; $i < $wholesale_count; $i++ ) {
-					if (!empty($wholesale['qty'][$i+1])){
-						$html .= "<tr><td>".$wholesale['qty'][$i]." - ".($wholesale['qty'][$i+1]-1)."</td>";
-						$html .= "<td>".wc_price($wholesale['price'][$i])."</td></tr>";
-					}
-
-					else {
-						$html .= "<tr><td> >= ".$wholesale['qty'][$i]."</td>";
-						$html .= "<td>".wc_price($wholesale['price'][$i])."</td></tr>";
-					}
-				}
-
-        	$html.= "</table>";
-
-        }
-        echo $html;
 }
