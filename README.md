@@ -32,4 +32,13 @@ Do you have questions or issues with WooCommerce Wholesale? Use these support.
 *Release Date - 29th March, 2019*
 * Initial Release
 
+## 1.0.4
+*Release Date - 30th March, 2019*
+* Fix wholesale qty post meta.
+* Fix wholesale price post meta.
+
+## 1.0.8
+*Release Date - 31th March, 2019*
+* Fix visibility wholesale checkboxes
+
 

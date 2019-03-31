@@ -30,6 +30,9 @@ function vedows_wholesale_price_field() {
 		echo "value of status error";
 	}
 
+	echo $status;
+	echo $wholesale;
+
 	?>
 	<script type="text/javascript">
 
@@ -85,8 +88,8 @@ function vedows_wholesale_price_field() {
 		elseif ( empty($wholesale) || !isset($wholesale) || $wholesale == 'null') {
 
 				$html .= '<tr>';
-				$html .= '<td><input type="number" name="_wholesale[qty][]" value=""></td>';
-				$html .= '<td><input type="text" name="_wholesale[price][]" value=""></td>';
+				$html .= '<td><input type="number" name="_vedows_wholesale[qty][]" value=""></td>';
+				$html .= '<td><input type="text" name="_vedows_wholesale[price][]" value=""></td>';
 				$html .= '</tr>';
 		}
 
